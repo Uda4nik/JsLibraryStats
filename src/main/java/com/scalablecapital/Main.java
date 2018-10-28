@@ -23,11 +23,9 @@ public class Main {
         DiContext context = new DiContext();
 
         GoogleUrlProducer urlProducer = context.getUrlProvider();
-        Queue<String> urlQueue = context.getUrlQueue();
-
         List<String> urls = urlProducer.provideFor(args[0]);
-        urlQueue.addAll(urls);
 
+        context.addUrlToUrlQueue(urls);
         context.startAll();
 
 //        Thread.sleep(10000);

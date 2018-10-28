@@ -7,6 +7,7 @@ import com.scalablecapital.stage.JavaLibraryExtractor;
 import com.scalablecapital.stage.PageLoader;
 import com.scalablecapital.stage.StatisticAggregator;
 
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -57,5 +58,9 @@ public class DiContext {
         poolForIO.shutdownNow();
         printerPool.shutdownNow();
         mainComponentsPool.shutdownNow();
+    }
+
+    public void addUrlToUrlQueue(Collection<String> urls) {
+        urlQueue.addAll(urls);
     }
 }
