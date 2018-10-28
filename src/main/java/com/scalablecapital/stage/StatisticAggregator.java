@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 
 import static java.util.Comparator.reverseOrder;
 
+/*
+* Currently works in one thread cause doesn't do much work
+**/
 public class StatisticAggregator implements Runnable {
 
     private final LinkedBlockingQueue<JsLibrary> libraryQueue;

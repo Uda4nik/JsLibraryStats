@@ -1,14 +1,12 @@
 package com.scalablecapital.stage;
 
-import org.jsoup.Jsoup;
+import com.scalablecapital.domain.DocumentLoader;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import static com.scalablecapital.Main.USER_AGENT;
 
 
 /*
@@ -20,11 +18,16 @@ public class PageLoader implements Runnable {
     private final LinkedBlockingQueue<String> urlQue;
     private final LinkedBlockingQueue<String> rawLibQue;
     private volatile boolean isTerminated = false;
+    private final DocumentLoader documentLoader;
 
-    public PageLoader(Executor ioBoundPool, LinkedBlockingQueue<String> urlQue, LinkedBlockingQueue<String> rawLibQueue) {
-        this.ioBoundPool = ioBoundPool;
+    public PageLoader(Executor threadPool,
+                      LinkedBlockingQueue<String> urlQue,
+                      LinkedBlockingQueue<String> rawLibQueue,
+                      DocumentLoader documentLoader) {
+        this.ioBoundPool = threadPool;
         this.urlQue = urlQue;
         this.rawLibQue = rawLibQueue;
+        this.documentLoader = documentLoader;
     }
 
     @Override
@@ -44,7 +47,7 @@ public class PageLoader implements Runnable {
     private Runnable createTask(String urToLoad) {
         return () -> {
             try {
-                Document doc = Jsoup.connect(urToLoad).userAgent(USER_AGENT).get();
+                Document doc = documentLoader.load(urToLoad);
                 Elements libraries = doc.getElementsByTag("script");
                 for (Element library : libraries) {
                     if (library.hasAttr("src")) {

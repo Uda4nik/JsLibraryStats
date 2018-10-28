@@ -1,5 +1,6 @@
 package com.scalablecapital.infrastructure;
 
+import com.scalablecapital.domain.DocumentLoader;
 import com.scalablecapital.domain.JsLibrary;
 import com.scalablecapital.stage.GoogleUrlProducer;
 import com.scalablecapital.stage.JavaLibraryExtractor;
@@ -15,6 +16,8 @@ import java.util.concurrent.TimeUnit;
 import static java.util.concurrent.Executors.*;
 
 public class DiContext {
+    private final DocumentLoader documentLoader = new JsoupDocumentLoader();
+    private final GoogleResultLinkExtractor extractor = new GoogleResultLinkExtractor();
     //queues for data passing from one stage to another, could be limited to control memory
     private final LinkedBlockingQueue<String> urlQueue = new LinkedBlockingQueue<>();
     private final LinkedBlockingQueue<String> jsLibRawQueue = new LinkedBlockingQueue<>();
@@ -26,8 +29,8 @@ public class DiContext {
     private final ScheduledExecutorService printerPool = newScheduledThreadPool(1);
 
     //workers
-    private final GoogleUrlProducer urlProvider = new GoogleUrlProducer();
-    private final PageLoader pageLoader = new PageLoader(poolForIO, urlQueue, jsLibRawQueue);
+    private final GoogleUrlProducer urlProvider = new GoogleUrlProducer(documentLoader, extractor);
+    private final PageLoader pageLoader = new PageLoader(poolForIO, urlQueue, jsLibRawQueue, documentLoader);
     private final JavaLibraryExtractor jsLibExtractor = new JavaLibraryExtractor(jsLibRawQueue, libraryQueue);
     private final StatisticAggregator aggregator = new StatisticAggregator(libraryQueue);
 

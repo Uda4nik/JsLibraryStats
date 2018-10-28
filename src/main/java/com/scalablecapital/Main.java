@@ -13,8 +13,9 @@ import java.util.Queue;
  * */
 public class Main {
 
-    public static final int VISIT_LIMIT = 50;
+    public static final int RESULT_LIMIT = 50;
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64)";
+    public static final String ENCODING = "UTF-8";
 
     public static void main(String[] args) {
         if (args.length < 1) throw new RuntimeException("Please provide some search string");

@@ -1,42 +1,34 @@
 package com.scalablecapital.stage;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import com.scalablecapital.domain.DocumentLoader;
+import com.scalablecapital.infrastructure.GoogleResultLinkExtractor;
+import org.jsoup.nodes.Document;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.scalablecapital.Main.USER_AGENT;
-import static com.scalablecapital.Main.VISIT_LIMIT;
+import static com.scalablecapital.Main.ENCODING;
+import static com.scalablecapital.Main.RESULT_LIMIT;
 
 
-/*
- * Powermock to test this???
- * */
 public class GoogleUrlProducer {
-    private static final String SEARCH_URL = "http://www.google.com/search?q=%s&num=" + VISIT_LIMIT;
-    private static final String ENCODING = "UTF-8";
+    private static final String SEARCH_URL = "http://www.google.com/search?q=%s&num=" + RESULT_LIMIT;
+
+    private final DocumentLoader documentLoader;
+    private final GoogleResultLinkExtractor extractor;
+
+    public GoogleUrlProducer(DocumentLoader documentLoader, GoogleResultLinkExtractor extractor) {
+        this.documentLoader = documentLoader;
+        this.extractor = extractor;
+    }
 
     public List<String> provideFor(String searchString) {
-        List<String> result = new ArrayList<>();
-
         try {
             String url = String.format(SEARCH_URL, URLEncoder.encode(searchString, ENCODING));
-            Elements links = Jsoup.connect(url).userAgent(USER_AGENT).get().select(".g>.r>a");
-            for (Element link : links) {
-                String linkUrl = link.absUrl("href");
-                linkUrl = URLDecoder.decode(linkUrl.substring(linkUrl.indexOf('=') + 1, linkUrl.indexOf('&')), ENCODING);
-                if (!linkUrl.startsWith("http")) {
-                    continue; // Ads/news/etc.
-                }
-                result.add(linkUrl);
-            }
+            Document document = documentLoader.load(url);
+            return extractor.extract(document);
         } catch (Exception e) {
             throw new RuntimeException("Failed to get links for " + searchString, e);
         }
-        return result;
     }
 }
